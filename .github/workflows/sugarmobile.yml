@@ -1,0 +1,30 @@
+name: Sugarmobile Auto Check
+
+on:
+  schedule:
+    # 매일 오전 9시 실행 (UTC 기준이라, 한국시간 9시는 0시로 설정)
+    - cron: "0 0 * * *"
+  workflow_dispatch:  # 수동 실행도 가능
+
+jobs:
+  run-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send POST request to sugarmobile
+        run: |
+          PHONE="01023584823"
+          PERS="931223"
+
+          RESPONSE=$(curl -s -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "phoneNum=${PHONE}&persNo=${PERS}" \
+            https://www.sugarmobile.co.kr/used_info.do)
+
+          echo "Server response: $RESPONSE"
+
+          if [ "$RESPONSE" = "0000" ]; then
+            echo "✅ 사용량 정보 전송 성공"
+          else
+            echo "⚠️ 서버 응답: $RESPONSE"
+          fi
